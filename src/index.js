@@ -1,7 +1,8 @@
 require('dotenv').config()
 const express = require("express");
 const http = require("http");
-const { selectAQuotation } = require("./db-access")
+const { selectAQuotation } = require("./db-access");
+const { logging } = require('selenium-webdriver');
 
 const PORT = process.env.PORT;
 const FILE_STORAGE_HOST = process.env.FILE_STORAGE_HOST;
@@ -17,19 +18,21 @@ app.get("/quotation", async (req, res) => {
 
 app.get("/image", async (req, res) => {
     const imagePath = req.query.path;
+    
     const forwardRequest = http.request(
         {
             host : FILE_STORAGE_HOST,
             port: FILE_STORAGE_PORT,
-            path: '/image?path=${imagepath}',
+            path: `/image?path=${imagePath}`,
             method: 'GET',
             headers: req.headers
         },
         forwardResponse => {
-            res.writeHead(forwardResponse.statusCode,forwardResponse.headers);
+            res.writeHeader(forwardResponse.statusCode,forwardResponse.headers);
             forwardResponse.pipe(res);
         }
     );
+    console.log(forwardRequest)
     req.pipe(forwardRequest);
 });
 
